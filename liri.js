@@ -1,4 +1,5 @@
 
+// var's of npm's that I will be using below
 var inquirer = require('inquirer');
 var request = require("request");
 var spotify = require("spotify");
@@ -12,20 +13,22 @@ var client = new Twitter({
 });
 var fs = require("fs");
 
+// Original question to user.  What do you want?
 var question = [
 	{
     type: "list",
     message: "Which item would you like to work with?",
-    choices: ["my-tweets about the BWCA", "spotify-this-song", "movie-this", "do-what-it-says"],
+    choices: ["tweets about NASA", "spotify-this-song", "movie-this", "do-what-it-says"],
     name: "command"
 	}
 ];
 
+// Grabs the user selection and directs to appropriate function
 inquirer.prompt(question).then(function(user) {
 	var selection = user.command;
 
 	switch (selection) {
-		case "my-tweets about the BWCA":
+		case "tweets about NASA":
 			myTweets();
 			break;
 		case "spotify-this-song":
@@ -41,8 +44,9 @@ inquirer.prompt(question).then(function(user) {
 			console.log("Error");
 	};
 
+	// Get six tweets from NASA and display them with numbers
 	function myTweets() {
-		client.get("search/tweets", {q: "BWCA", count: 6}, function(error, data, response) {
+		client.get("search/tweets", {q: "NASA", count: 6}, function(error, data, response) {
   			var tweets = data.statuses;
   			for (var i = 0; i < tweets.length; i++) {
   				console.log((i+1) + ". " + tweets[i].text);
@@ -50,6 +54,8 @@ inquirer.prompt(question).then(function(user) {
 		});
 	};
 
+	// Get information from Spotify for song that user entered and send to Spotify function
+	// If user does not enter a song (blank) call function to get "Ace of Base, The Sign"
 	function spotifyThisSong() {
 		inquirer.prompt([
   		{
@@ -60,18 +66,15 @@ inquirer.prompt(question).then(function(user) {
   		]).then(function(user) {
   			songName = user.song;
   			if (user.song === "") {
-  				songName = "The Sign";
+  				findTheSign();
   			}
-  			spotify.search({ type:"track", query:songName }, function(err, data) {
-				var songInfo = data.tracks.items[0];
-				console.log(songInfo.artists[0].name);
-				console.log(songInfo.name);
-				console.log(songInfo.preview_url);
-				console.log(songInfo.album.name);
-			});
+  			else {
+  				spotifyThis(songName);
+  			}
 		});
 	};
 
+	// Get information for movie that user entered and display
 	function movieThis() {
 		inquirer.prompt([
   		{
@@ -100,17 +103,41 @@ inquirer.prompt(question).then(function(user) {
 		});
 	};
 
+// Function that gets song in random.txt and send to Spotify
 	function doWhatItSays() {
 		fs.readFile("random.txt", "utf8", function(error, data) {
 			var separateIt = data.split(",").pop();
-  			spotify.search({ type:"track", query:separateIt }, function(err, data) {
-				var songInfo = data.tracks.items[0];
-				console.log(songInfo.artists[0].name);
-				console.log(songInfo.name);
-				console.log(songInfo.preview_url);
-				console.log(songInfo.album.name);
-			});
+ 			spotifyThis(separateIt);
 		});
+	};
+
+// Function that displays info from Spotify for song passed to function
+	function spotifyThis(checkThis) {
+ 		spotify.search({ type:"track", query:checkThis }, function(err, data) {
+			var songInfo = data.tracks.items[0];
+			console.log(songInfo.artists[0].name);
+			console.log(songInfo.name);
+			console.log(songInfo.preview_url);
+			console.log(songInfo.album.name);
+		});
+	};
+
+// Function to find "Ace of Base, The Sign" and list origianl release album
+	function findTheSign() {
+ 		spotify.search({ type:"track", query:"The Sign" }, function(err, data) {
+ 			var firstStep = data.tracks;
+ 			var secondStep = data.tracks.items;
+   			for (var i = 0; i < secondStep.length; i++) {
+ 	  			if (firstStep.items[i].artists[0].name === "Ace of Base") {
+	  				if (firstStep.items[i].album.name != "Greatest Hits") {
+	  					console.log(firstStep.items[i].artists[0].name);
+						console.log(firstStep.items[i].name);
+						console.log(firstStep.items[i].preview_url);
+						console.log(firstStep.items[i].album.name);
+					}
+	  			}
+  			}
+  		});			
 	};
 });
 
