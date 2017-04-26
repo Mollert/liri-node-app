@@ -1,1 +1,1 @@
-Working - need to clean up
+Her is my completed assignment.  I payed close attention to structure and commenting.  I enjoyed this assignment.
