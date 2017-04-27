@@ -48,6 +48,7 @@ inquirer.prompt(question).then(function(user) {
 	function myTweets() {
 		client.get("search/tweets", {q: "NASA", count: 6}, function(error, data, response) {
   			var tweets = data.statuses;
+  			console.log("");
   			for (var i = 0; i < tweets.length; i++) {
   				console.log((i+1) + ". " + tweets[i].text);
   			}
@@ -90,6 +91,7 @@ inquirer.prompt(question).then(function(user) {
 			var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&r=json";
   			request(queryUrl, function(error, response, body) {
 				if (!error && response.statusCode === 200) {
+					console.log("");
 					console.log("Title of the movie: " + JSON.parse(body).Title);
 					console.log("Year the movie came out: " + JSON.parse(body).Year);
 					console.log("IMBD Rating of the movie: " + JSON.parse(body).imbdRating);
